@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Roogle Gateway Router</title>
+  
+  <style>
+    html,body { height:100%; margin:0; }
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; overflow: hidden; }
+    
+    #loadingOverlay {
+      position:fixed; inset:0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background: #ffffff; z-index:9999;
+      transition: opacity .25s ease;
+    }
+    #loadingOverlay.hidden { opacity:0; pointer-events:none; display:none; }
+
+    #loadingSpinner {
+      border:6px solid #f3f3f3; 
+      border-top:6px solid #4285f4; 
+      border-radius:50%;
+      width:60px; height:60px; 
+      animation:spin 1s linear infinite; 
+      margin-bottom:15px;
+    }
+    @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+    #loadingMessage { font-size:18px; color:#555; font-weight: 500; text-align: center; padding: 0 20px;}
+    #innerFrame { width:100%; height:100vh; border:none; display:block; }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay">
+    <div id="loadingSpinner"></div>
+    <div id="loadingMessage">Booting gateway engine...</div>
+  </div>
+
+  <iframe 
+  id="innerFrame"
+  sandbox="allow-scripts allow-forms allow-popups allow-same-origin allow-pointer-lock allow-presentation allow-modals allow-top-navigation-by-user-activation"
+  allow="fullscreen; autoplay; clipboard-read; clipboard-write; gamepad; accelerometer; gyroscope; picture-in-picture; web-share"
+  allowfullscreen>
+</iframe>
+
+
+  <script>
+    window.addEventListener('error', function(err) {
+      document.getElementById('loadingSpinner').style.display = 'none';
+      document.getElementById('loadingMessage').innerHTML = `<span style="color:red; font-size:16px;"><b>CRASH DETECTED:</b><br>${err.message}</span>`;
+    });
+  </script>
+
+  <script src="https://unpkg.com/@mercuryworkshop/bare-mux@2/dist/index.js"></script>
+  
+  <script src="https://unpkg.com/@titaniumnetwork-dev/ultraviolet@3.2.7/dist/uv.bundle.js"></script>
+  <script src="https://unpkg.com/@titaniumnetwork-dev/ultraviolet@3.2.7/dist/uv.client.js"></script>
+  
+  <script src="uv.config.js"></script>
+  <script src="client.js"></script>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUrl = urlParams.get('url') || 'https://google.com';
+    const engine = urlParams.get('engine') || 'uv'; 
+
+    if (engine === 'uv') {
+        document.getElementById('loadingMessage').innerText = "Connecting to Secure Gateway (v3)...";
+        
+        (async function bootV3() {
+            try {
+                const bareMux = new BareMux.BareMuxConnection("/mux.js");
+                
+                await bareMux.setTransport("https://unpkg.com/@mercuryworkshop/bare-as-module3@2.2.5/dist/index.mjs", ["https://averagegael-roogle-servers.hf.space/bare/"]);
+                await navigator.serviceWorker.register('sw.js', { scope: '/' });
+                await navigator.serviceWorker.ready;
+
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                const encodedUrl = __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
+                document.getElementById('innerFrame').src = encodedUrl;
+                
+            } catch (err) {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('loadingMessage').innerHTML = `<span style="color:red;"><b>Worker Error:</b> ${err}</span>`;
+            }
+        })();
+    } else {
+        document.getElementById('loadingMessage').innerText = "Connecting to Secondary Cloud...";
+    }
+  </script>
+</body>
+</html>

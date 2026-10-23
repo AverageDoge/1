@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Roogle</title>
+  <link rel="icon" type="image/png" href="Google.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header id="topbar">
+    <button id="hamburger" class="icon-btn" aria-label="Open menu">☰</button>
+    <h1>Roogle</h1>
+
+    <form id="gatewayForm" class="top-form" autocomplete="off">
+      <select id="routerEngine" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; background: #fff; color: #333; font-weight: 500; cursor: pointer;">
+        <option value="uv-bare" selected>uv (Cloudflare Bare)</option>
+        <option value="uv">uv</option>
+        <option value="cf">Cloudflare</option>
+      </select>
+      
+      <input type="text" id="url" placeholder="Enter a URL (example.com)..." required />
+      <button type="submit">Go</button>
+      <button type="button" id="fullscreen-btn" title="Toggle Fullscreen">⛶</button>
+    </form>
+
+    <div id="user-section">
+      <button id="auth-btn" class="auth-btn">Sign In</button>
+      
+      <div id="user-profile" class="hidden">
+        <div id="user-avatar">?</div>
+        <input type="file" id="pfp-input" accept="image/*" style="display: none;" />
+
+        <div id="user-dropdown" class="dropdown-content hidden">
+          <div class="dropdown-header">
+            <span id="dropdown-username">User</span>
+            <span id="dropdown-rank" class="rank-badge">Bronze</span>
+          </div>
+          
+          <div class="dropdown-stats">
+            <div>Logins: <strong id="menu-logins">0</strong></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Points: <strong id="menu-points">0</strong></span>
+              <button id="btn-claim-points" style="background:#34a853; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Claim</button>
+            </div>
+            <div id="claim-timer" style="font-size:10px; color:#888; text-align:right; display:none;">Wait 6h</div>
+          </div>
+
+          <hr>
+          <button id="change-pfp-btn" style="width:100%; text-align:left; background:none; border:none; padding:8px; cursor:pointer; color:#1a73e8; font-weight:500;">Change Picture</button>
+          <button id="change-rank-btn" style="width:100%; text-align:left; background:none; border:none; padding:8px; cursor:pointer; color:#1a73e8; font-weight:500;">Change Rank</button>
+          <button id="change-font-btn" style="width:100%; text-align:left; background:none; border:none; padding:8px; cursor:pointer; color:#1a73e8; font-weight:500;">Change Font</button>
+          
+          <button id="menu-shop-btn" style="width:100%; text-align:left; background:none; border:none; padding:8px; cursor:pointer; color:#1a73e8; font-weight:500;">🛒 Season Shop</button>
+          <button id="menu-market-btn" style="width:100%; text-align:left; background:none; border:none; padding:8px; cursor:pointer; color:#1a73e8; font-weight:500;">🏪 Roogle Market</button>
+          <button id="signout-btn" style="width:100%; text-align:left; background:none; border:none; padding:8px; cursor:pointer; color:#d93025;">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="main">
+    <nav id="sidebar">
+      <div class="sidebar-header">
+        <h2>Menu</h2>
+        <button id="closeSidebar" class="icon-btn">&times;</button>
+      </div>
+      <div class="sidebar-section">
+        <h3>Quick Links</h3>
+        <div id="quick-links-list"></div>
+        <div class="add-link-wrapper">
+          <input type="text" id="new-link-title" placeholder="Title" />
+          <input type="text" id="new-link-url" placeholder="URL" />
+          <button id="add-link-btn">+</button>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <h3>Shortcuts</h3>
+        <button class="nav-btn" id="btn-google">Google</button>
+        <button class="nav-btn" id="btn-hahagames">HahaGames</button>
+      </div>
+      <div class="sidebar-section">
+        <h3>Community</h3>
+        <button class="nav-btn" id="btn-chat-sidebar">💬 Roogle Chat</button>
+        <button class="nav-btn" id="btn-leaderboard">🏆 Leaderboard</button>
+        <button class="nav-btn" id="btn-newspaper">📰 Roogle News</button>
+        <button class="nav-btn" id="btn-shop-sidebar">🛒 Season Shop</button>
+        <button class="nav-btn" id="btn-market-sidebar">🏪 Roogle Market</button>
+        <button class="nav-btn" id="btn-feedback-sidebar">📋 Feedback</button>
+      </div>
+      
+      <div class="sidebar-section">
+        <h3>Tools</h3>
+        <button class="nav-btn" id="btn-games-sidebar">🎮 Roogle Games</button>
+        <button class="nav-btn" id="btn-rootube-sidebar">▶️ Rootube</button>
+        <button class="nav-btn" id="btn-ai-sidebar">✨ Roogle AI</button>
+        <button class="nav-btn" id="btn-encryption-sidebar">🔐 Encryption Language</button>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>System</h3>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px;">
+          <input type="checkbox" id="enableDebug" /> Debug Logs
+        </label>
+        <div id="sidebarLogs" class="logs-container"></div>
+      </div>
+    </nav>
+
+    <div id="iframe-container">
+      <iframe 
+        id="innerFrame" 
+        sandbox="allow-scripts allow-forms allow-popups allow-same-origin allow-pointer-lock allow-presentation" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; gamepad"
+        title="Roogle Window">
+      </iframe>
+      <div id="loadingOverlay" class="hidden">
+          <div id="loadingSpinner"></div>
+          <div id="loadingMessage">Connecting to secure base...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="info-section">
+    <p>Roogle &copy; 2026 &bull; Version 4.2.0 &bull; <span style="color:#5f6368; cursor:pointer;">Privacy</span></p>
+  </div>
+
+  <div id="auth-modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="close-modal" class="close">&times;</span>
+      <h2 id="modal-title">Sign In</h2>
+      <form id="auth-form">
+        <input type="text" id="auth-username" placeholder="Username" required />
+        <input type="password" id="auth-password" placeholder="Password" required />
+        <button type="submit" id="modal-submit-btn">Sign In</button>
+      </form>
+      <p class="auth-switch">
+        <span id="switch-msg">New to Roogle?</span> 
+        <a href="#" id="switch-mode">Create Account</a>
+      </p>
+      <p id="auth-error" class="error-msg"></p>
+    </div>
+  </div>
+
+  <div id="leaderboard-modal" class="modal hidden">
+    <div class="modal-content" style="width: 400px;">
+      <span id="close-leaderboard" class="close">&times;</span>
+      <h2 style="text-align: center; margin-bottom: 15px;">🏆 Top Logins</h2>
+      <div id="leaderboard-list" style="max-height: 300px; overflow-y: auto;">
+        <p>Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="newspaper-modal" class="modal hidden">
+    <div class="modal-content" style="width: 900px; height: 500px; display:flex; flex-direction:column;">
+      <span id="close-newspaper" class="close">&times;</span>
+      <h2 style="text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px;">📰  Roogle News</h2>
+      
+      <div id="newspaper-content" style="flex:1; overflow-y: auto; padding: 10px; font-family: 'Georgia', serif; line-height: 1.6; color:#333;">
+          <h1 style="text-align:center; font-size:24px; color:#1a73e8;">Version 4.2 is live! + News to read as of 9/2/26!</h1>
+          <p style="text-align:center; color:#555; font-style:italic;">Big R</p>
+          <hr style="margin: 15px 0;">
+
+          <h3>NEWS on future+ 4.3 stuff</h3>
+          <p>News on updates:</p>
+          <ul>
+            <li><strong>News:</strong> Since I got school and other activties now, there will be a big decrease on updates. Minor updates like bug fixes and etc will be less. There will be BIG updates tho. Plus there will be a back to school update coming soon!</l>
+            <li><strong>News:</strong> Features coming to 4.3 otherwise none as back to school update (I know, school was like 2 months ago) so the 1st feature is Roogle forums and new gambing stuff because I LISTEN to ideas</l>
+          </ul>
+
+          <br>
+          <h3>🛍️ Shop Rotation</h3>
+          <p>The shop rotates every week! Currently, we are in <strong>idk and idc</strong>.</p>
+          
+          <br>
+          <p style="text-align:center;"><em>Enjoy!<br>- AverageGael</em></p>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="shop-modal" class="modal hidden">
+    <div class="modal-content" style="width: 600px; max-width:90%;">
+      <span id="close-shop" class="close">&times;</span>
+      <h2 style="text-align: center; margin-bottom: 5px;">🛒 Season Shop</h2>
+      
+      <div style="text-align:center; margin-bottom:15px; background:#f1f3f4; padding:8px; border-radius:8px;">
+        <span style="font-weight:bold; color:#555;">Refresh in:</span>
+        <span id="shop-timer" style="font-family:monospace; font-size:18px; color:#d93025; font-weight:bold;">00d 00h 00m</span>
+      </div>
+
+      <div id="shop-items-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:10px; max-height: 400px; overflow-y: auto;">
+        </div>
+
+      <div style="margin-top:15px; text-align:right;">
+        Your Points: <strong id="shop-points-display" style="color:#1a73e8;">0</strong>
+      </div>
+    </div>
+  </div>
+
+  <div id="rank-modal" class="modal hidden">
+    <div class="modal-content" style="width: 400px;">
+      <span id="close-rank-modal" class="close">&times;</span>
+      <h2 style="text-align: center;">My Rank Collection</h2>
+      <p style="text-align:center; margin-bottom:15px; font-size:12px;">Click a rank to equip it.</p>
+      <div id="rank-list" style="display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <div id="font-modal" class="modal hidden">
+    <div class="modal-content" style="width: 400px;">
+      <span id="close-font-modal" class="close">&times;</span>
+      <h2 style="text-align: center;">My Fonts</h2>
+      <p style="text-align:center; margin-bottom:15px; font-size:12px;">Select a font style to use.</p>
+      <div id="font-list" style="display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="modal hidden">
+    <div class="modal-content" style="width: 700px; max-width: 95%;">
+      <span id="close-profile-modal" class="close">&times;</span>
+      
+      <div class="profile-layout">
+        
+        <div class="profile-left">
+          <div class="profile-avatar-large" id="profile-pfp-display">?</div>
+          <h2 id="profile-username" style="margin: 10px 0 5px 0;">User</h2>
+          <div id="profile-rank-badge" class="rank-badge">Bronze</div>
+          
+          <div id="profile-actions" style="margin-top: 15px; width: 100%;">
+            <button id="btn-edit-profile" class="action-btn">Edit Profile</button>
+            <button id="btn-add-friend" class="action-btn hidden">Add Friend</button>
+          </div>
+        </div>
+
+        <div class="profile-right">
+          <div class="profile-section">
+            <h3>About Me</h3>
+            <textarea id="profile-bio-input" placeholder="Write something about yourself..." disabled></textarea>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-label">💰 Points</span>
+              <span class="stat-value" id="profile-points">0</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">📅 Joined</span>
+              <span class="stat-value" id="profile-join-date">2026</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">🏆 Best Rank</span>
+              <span class="stat-value" id="profile-best-rank">Bronze</span>
+            </div>
+          </div>
+
+          <div class="profile-section" style="flex-grow: 1;">
+            <h3>Friends</h3>
+            <div id="profile-friends-list" class="friends-placeholder">
+              No friends added yet.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="client.js"></script>
+  <script src="config.js"></script>
+  <script src="auth.js"></script> 
+  <script src="social.js"></script> 
+  <script src="script.js"></script>
+  <script src="market.js"></script>
+  <script src="games.js"></script>
+  <script src="encryption.js"></script>
+  <script src="rootube.js"></script>
+  <script src="ai.js"></script>
+  <script src="chat.js"></script>
+  <script src="feedback.js"></script>
+</body>
+</html>

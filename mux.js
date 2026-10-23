@@ -1,0 +1,1 @@
+importScripts('https://unpkg.com/@mercuryworkshop/bare-mux@2/dist/worker.js');
